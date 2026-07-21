@@ -5,6 +5,8 @@ mod_extract/
 packed/
 packroot_common/
 packroot_myfamily_common/
+packroot_myfamily_female_templates/
+packroot_myfamily_localizations/
 packroot_myfamily_model_restore_*/
 packroot_myfamily_models_*/
 packroot_myfamily_models_gender_*/

@@ -1,34 +1,32 @@
 # Notes
 
-## Why Patch `templates.dat`
+## Why Patch Base Archives
 
-The mod `common` container successfully changes scenario config and localization archives successfully change names, but character backpack sizes are loaded from base binary templates.
+The mod `common` container successfully changes the scenario and localization archives successfully change names, but character backpack sizes, model refs, and portrait atlas refs are loaded from base binary templates.
 
-The working path for stats is therefore a targeted patch of these entries inside base `templates.dat`:
+The working path is therefore targeted patching of compressed entries inside base archives:
 
-- `characters/player_characters/dweller_warrior.binarytemplate`
-- `characters/player_characters/dweller_trader.binarytemplate`
-- `characters/player_characters/dweller_crafter.binarytemplate`
-- `characters/player_characters/dweller_cook.binarytemplate`
+- `templates.dat` / `templates.idx` for stock character templates.
+- `textures-s3.dat` / `textures-s3.idx` for scenario and character portrait atlases.
 
-The patcher replaces only those compressed entries and adjusts subsequent offsets in `templates.idx`.
+The patchers replace only selected compressed entries and adjust subsequent offsets in the matching `.idx`.
 
-## Current Limitation
+## Current Scenario
 
-Some desired behavior is not yet implemented:
+The active `MyFamily` scenario now starts with:
 
-- Custom full-body character models.
-- True per-character depression immunity.
-- Grandma demotivating other characters through a custom morale aura.
-- New radio/intel trading mechanic.
+- `Dweller_Warrior` for Ромакович.
+- `Dweller_Lawyer` for Катя.
+- `Dweller_Female_Thief` for Настя.
+- `Dweller_Trader` for Бабуля.
 
-Those likely require deeper template/component work or Lua/game-code hooks.
+This is the safer full-body model path. Direct model-string swaps in old templates caused startup exits, while whole stock female templates launched successfully on 2026-07-22.
 
 ## Scenario Select Image
 
-The scenario select card now uses `UI/select/PhotoWindow_White.dds`.
+The scenario select card uses `UI/select/PhotoWindow_White.dds`.
 
-The custom collage is patched into the base `textures-s3.dat` entry:
+The custom collage is patched into:
 
 - `ui/select/photowindow_white.texture`
 
@@ -36,29 +34,29 @@ Putting a new `ui/select/myfamily_01.texture` inside the mod `common` container 
 
 ## In-Game Portraits
 
-The lower-right in-game character cards use the base character atlas:
+Current patched portrait atlas entries:
 
 - `ui/characters/characters_02.texture`
 - `ui/characters/characters_02_closed.texture`
 - `ui/characters/characters_02_blinked.texture`
+- `ui/characters/characters_03dirty_close.texture`
+- `ui/characters/characters_03dirty_open.texture`
 
-Current patched tiles:
+Current tiles:
 
-- `Ромакович`: tile `(3, 0)`.
-- `Катя`: tile `(0, 1)`, used by `Dweller_Cook`.
-- `Настя`: tile `(2, 1)`.
-- `Бабуля`: tile `(1, 2)`, used by `Dweller_Trader`.
+- `Ромакович`: `Characters_02`, tile `(3, 0)`.
+- `Катя`: `Characters_03Dirty`, tile `(1, 0)`, used by `Dweller_Lawyer`.
+- `Настя`: `Characters_03Dirty`, tile `(0, 1)`, used by `Dweller_Female_Thief`.
+- `Бабуля`: `Characters_02`, tile `(1, 2)`, used by `Dweller_Trader`.
 
-`Dweller_Cook` is patched to portrait tile `(0, 1)`, and `Dweller_Trader` is patched to `(1, 2)` so Катя is the cook and Бабуля is the trader.
+## Known Limits
 
-## Full-Body Models
+Some desired behavior is not yet implemented:
 
-Directly replacing `GFX/CHARACTERS/RDY2/...` model references in the dweller templates was tested and rolled back because the game exited during startup.
+- True per-character depression immunity.
+- Real Bruno cooking component on Katya's current female template.
+- Real Marin crafting discount on Nastya's current female template.
+- Grandma demotivating other characters through a custom morale aura.
+- New radio/intel trading mechanic.
 
-The attempted set was:
-
-- `Dweller_Cook`: `bruno` -> `kucharka`.
-- `Dweller_Crafter`: `marin` -> `zlodziejka`.
-- `Dweller_Trader`: `katia` -> `ciocia_nauczycielka`.
-
-Changing `Male_Protector` to `Female_Protector` for the converted templates did not fix the startup exit. The current stable build keeps the stock full-body models and only changes portrait cards, names, roles, and stats.
+Those likely require deeper template/component work or Lua/game-code hooks.

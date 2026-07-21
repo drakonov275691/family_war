@@ -1,10 +1,16 @@
 from pathlib import Path
 
 
-TARGET = Path(
+TARGETS = [
+    Path(
     r"C:\Users\user\Documents\This War of Mine\Mods\MyFamilyMod"
     r"\30be2babe4ac457c836a07462a83a65e\localizations\russian.lang"
-)
+    ),
+    Path(
+        r"D:\Games\This War of Mine\Mods\MyFamilyMod"
+        r"\30be2babe4ac457c836a07462a83a65e\localizations\russian.lang"
+    ),
+]
 
 PATCHES = {
     "\u0420\u043e\u043c\u0430\u043d": "\u0420\u043e\u043c\u0430\u043a\u043e\u0432\u0438\u0447",
@@ -16,6 +22,10 @@ PATCHES = {
 KEY_VALUES = {
     "Names/Bruno": "\u041a\u0430\u0442\u044f",
     "Names/Katia": "\u0411\u0430\u0431\u0443\u043b\u044f",
+    "Names/Emilia": "\u041a\u0430\u0442\u044f",
+    "Names/Arica": "\u041d\u0430\u0441\u0442\u044f",
+    "CharacterSkills/Lawyer": "\u0425\u043e\u0440\u043e\u0448\u0438\u0439 \u043f\u043e\u0432\u0430\u0440",
+    "CharacterSkills/Thief": "\u0418\u043d\u0436\u0435\u043d\u0435\u0440-\u0441\u0442\u0435\u043b\u0441\u0435\u0440",
 }
 
 KEY_REPLACEMENTS = {
@@ -67,8 +77,8 @@ def build_lang(records: list[tuple[str, str]]) -> bytes:
     return bytes(header + body)
 
 
-if __name__ == "__main__":
-    payload = TARGET.read_bytes()
+def patch_file(target: Path) -> None:
+    payload = target.read_bytes()
     records = parse_records(payload)
     changes = 0
     updated = []
@@ -98,7 +108,12 @@ if __name__ == "__main__":
         updated.append((key, new_value))
 
     if changes == 0:
-        print("No changes needed")
+        print(target, "No changes needed")
     else:
-        TARGET.write_bytes(build_lang(updated))
-        print(f"Updated {changes} text occurrence(s)")
+        target.write_bytes(build_lang(updated))
+        print(target, f"Updated {changes} text occurrence(s)")
+
+
+if __name__ == "__main__":
+    for target in TARGETS:
+        patch_file(target)

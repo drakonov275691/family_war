@@ -10,22 +10,20 @@ This repository intentionally does **not** include game archives, extracted game
 - Patches Russian localization names:
   - `Roman` -> `Ромакович`
   - `Katia` -> `Бабуля`
-  - `Marin / Мэйрин` -> `Настя`
-  - `Bruno` -> `Катя`
-- Patches base `templates.dat` in place for the four stock templates used by the scenario:
+  - `Emilia` -> `Катя`
+  - `Arica` -> `Настя`
+- Uses a safer full-body model experiment: the scenario starts with `Dweller_Warrior`, `Dweller_Lawyer`, `Dweller_Female_Thief`, and `Dweller_Trader`.
+- Patches base `templates.dat` in place for the stock templates used by the scenario:
   - `Dweller_Warrior`: 40-slot backpack, high HP, strong combat.
   - `Dweller_Trader`: 8-slot backpack, stronger trader value.
-  - `Dweller_Crafter`: 14-slot backpack, stronger crafting discount.
-  - `Dweller_Cook`: 12-slot backpack, stronger food/medicine crafting discounts.
+  - `Dweller_Lawyer`: 12-slot backpack and Katya's female model.
+  - `Dweller_Female_Thief`: 14-slot backpack and Nastya's female stealth model.
 
 See [CHARACTER_STATS.md](CHARACTER_STATS.md) for the current character setup.
 
 ## Important
 
-Back up the game before patching. The main in-place patcher also creates local backups:
-
-- `D:\Games\This War of Mine\templates.dat.bak-codex-before-inplace-stats`
-- `D:\Games\This War of Mine\templates.idx.bak-codex-before-inplace-stats`
+Back up the game before patching. The in-place patchers also create local backups.
 
 The scripts are currently tuned for:
 
@@ -36,15 +34,11 @@ C:\Users\user\Documents\This War of Mine\Mods\MyFamilyMod
 
 ## Useful Commands
 
-Patch base character templates:
+Apply the current female-template model experiment:
 
 ```powershell
-python .\twom_patch_base_templates_inplace.py
-```
-
-Patch Russian localization source:
-
-```powershell
+python .\twom_try_female_template_models.py
+python .\twom_patch_character03dirty_portraits.py
 python .\twom_patch_russian_lang_structured.py
 ```
 
