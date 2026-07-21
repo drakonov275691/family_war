@@ -1,0 +1,39 @@
+# Generated/copyrighted game data
+backups/
+decompressed/
+mod_extract/
+packed/
+packroot_common/
+packroot_myfamily_common/
+packroot_myfamily_stats/
+texture_samples/
+tools/
+__pycache__/
+
+# Local binaries and screenshots
+DumpIL.*
+*.exe
+*.dll
+*.pdb
+*.dat
+*.idx
+*.str
+*.bin
+*.png
+*.jpg
+*.jpeg
+*.dds
+*.texture
+
+# Obsolete/local experiments
+twom_build_myfamily_character_overrides.py
+twom_make_myfamily_select_texture.py
+twom_patch_myfamily_templates.py
+twom_patch_russian_names.py
+twom_patch_stock_templates.py
+
+# OS/editor noise
+Thumbs.db
+.DS_Store
+.vscode/
+.idea/
