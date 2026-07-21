@@ -90,28 +90,43 @@ def set_int(data: bytearray, offset: int, value: int) -> None:
     data[offset : offset + 4] = struct.pack("<I", value)
 
 
-def patch_backpack(data: bytearray, old: int, new: int) -> None:
-    pattern = b"\x01" + struct.pack("<I", old) + b"\x00\x00\x00\x3f"
-    pos = data.rfind(pattern)
-    if pos >= 0:
-        set_int(data, pos + 1, new)
-        print("backpack", old, "->", new, "at", pos + 1)
-        return
+def patch_backpack(data: bytearray, old_values: list[int], new: int) -> None:
+    for old in old_values:
+        pattern = b"\x01" + struct.pack("<I", old) + b"\x00\x00\x00\x3f"
+        pos = data.rfind(pattern)
+        if pos >= 0:
+            set_int(data, pos + 1, new)
+            print("backpack", old, "->", new, "at", pos + 1)
+            return
 
     tail_start = max(0, len(data) - 96)
-    old_bytes = struct.pack("<I", old)
     matches = []
-    start = tail_start
-    while True:
-        pos = data.find(old_bytes, start)
-        if pos < 0:
-            break
-        matches.append(pos)
-        start = pos + 1
+    for old in old_values:
+        old_bytes = struct.pack("<I", old)
+        start = tail_start
+        while True:
+            pos = data.find(old_bytes, start)
+            if pos < 0:
+                break
+            matches.append((pos, old))
+            start = pos + 1
     if not matches:
-        raise ValueError(f"Backpack value {old} not found")
-    set_int(data, matches[-1], new)
-    print("backpack", old, "->", new, "at", matches[-1])
+        raise ValueError(f"Backpack value {old_values} not found")
+    pos, old = matches[-1]
+    set_int(data, pos, new)
+    print("backpack", old, "->", new, "at", pos)
+
+
+def patch_portrait_tile(data: bytearray, values: tuple[float, float, float, float]) -> None:
+    marker = b"UI/Characters/Characters_02_Closed.dds\x00"
+    pos = data.find(marker)
+    if pos < 0:
+        print("portrait tile marker missing, skipped")
+        return
+    tile_pos = pos + len(marker)
+    old = struct.unpack_from("<ffff", data, tile_pos)
+    struct.pack_into("<ffff", data, tile_pos, *values)
+    print("portrait tile", old, "->", values)
 
 
 def patch_hp(data: bytearray, health: float) -> None:
@@ -157,7 +172,7 @@ def patch_first_craftsman_values(data: bytearray, values: list[float]) -> None:
     found = []
     for i in range(pos + len(name), end - 4):
         f = struct.unpack_from("<f", data, i)[0]
-        if any(abs(f - expected) < 0.0001 for expected in (0.5, 0.75, 0.8, 1.0)):
+        if any(abs(f - expected) < 0.0001 for expected in (0.3, 0.4, 0.5, 0.75, 0.8, 1.0)):
             found.append(i)
     if len(found) < len(values):
         raise ValueError(f"Need {len(values)} craftsman floats, found {len(found)}")
@@ -170,18 +185,22 @@ def patch_payload(label: str, payload: bytes) -> bytes:
     data = bytearray(payload)
     print("\npatch", label)
     if label == "warrior":
-        patch_backpack(data, 10, 40)
+        patch_backpack(data, [10, 40], 40)
         patch_hp(data, 180.0)
         patch_combat(data, 1.0, 0.9)
+        patch_portrait_tile(data, (3.0, 0.0, 4.0, 4.0))
     elif label == "trader":
-        patch_backpack(data, 12, 12)
+        patch_backpack(data, [12, 8], 8)
         patch_trading(data, 0.5)
+        patch_portrait_tile(data, (1.0, 2.0, 4.0, 4.0))
     elif label == "crafter":
-        patch_backpack(data, 10, 14)
+        patch_backpack(data, [10, 14], 14)
         patch_first_craftsman_values(data, [0.5])
+        patch_portrait_tile(data, (2.0, 1.0, 4.0, 4.0))
     elif label == "cook":
-        patch_backpack(data, 10, 8)
+        patch_backpack(data, [10, 8, 12], 12)
         patch_first_craftsman_values(data, [0.3, 0.4, 0.4])
+        patch_portrait_tile(data, (0.0, 1.0, 4.0, 4.0))
     return bytes(data)
 
 

@@ -6,6 +6,7 @@ packed/
 packroot_common/
 packroot_myfamily_common/
 packroot_myfamily_portraits_*/
+packroot_myfamily_role_swap_*/
 packroot_myfamily_stats/
 packroot_myfamily_scenario_texturebase_*/
 packroot_myfamily_texture_*/

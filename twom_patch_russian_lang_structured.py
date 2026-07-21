@@ -9,10 +9,23 @@ TARGET = Path(
 PATCHES = {
     "\u0420\u043e\u043c\u0430\u043d": "\u0420\u043e\u043c\u0430\u043a\u043e\u0432\u0438\u0447",
     "\u0413\u043e\u0441\u0438\u043a": "\u0420\u043e\u043c\u0430\u043a\u043e\u0432\u0438\u0447",
-    "\u0411\u0440\u0443\u043d\u043e": "\u0411\u0430\u0431\u0443\u043b\u044f",
-    "\u0411\u0430\u0431\u043a\u0430": "\u0411\u0430\u0431\u0443\u043b\u044f",
     "\u041c\u0430\u0440\u0438\u043d": "\u041d\u0430\u0441\u0442\u044f",
     "\u041c\u044d\u0439\u0440\u0438\u043d": "\u041d\u0430\u0441\u0442\u044f",
+}
+
+KEY_VALUES = {
+    "Names/Bruno": "\u041a\u0430\u0442\u044f",
+    "Names/Katia": "\u0411\u0430\u0431\u0443\u043b\u044f",
+}
+
+KEY_REPLACEMENTS = {
+    "CharacterBios/Cook/Bio": {
+        "\u041a\u0443\u0445\u043d\u044f \u0411\u0430\u0431\u0443\u043b\u044f": "\u041a\u0443\u0445\u043d\u044f \u041a\u0430\u0442\u044f",
+        "\u0411\u0430\u0431\u0443\u043b\u044f": "\u041a\u0430\u0442\u044f",
+    },
+    "CharacterBios/Cook/DeathNote": {
+        "\u0411\u0430\u0431\u0443\u043b\u044f": "\u041a\u0430\u0442\u044f",
+    },
 }
 
 
@@ -61,6 +74,21 @@ if __name__ == "__main__":
     updated = []
     for key, value in records:
         new_value = value
+        if key in KEY_VALUES:
+            new_value = KEY_VALUES[key]
+            if new_value != value:
+                changes += 1
+                print(f"{key}: {value} -> {new_value}")
+            updated.append((key, new_value))
+            continue
+
+        for old, new in KEY_REPLACEMENTS.get(key, {}).items():
+            if old in new_value:
+                occurrences = new_value.count(old)
+                changes += occurrences
+                print(f"{key}: {old} -> {new} ({occurrences})")
+                new_value = new_value.replace(old, new)
+
         for old, new in PATCHES.items():
             if old in new_value:
                 occurrences = new_value.count(old)

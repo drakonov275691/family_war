@@ -17,7 +17,7 @@ The patcher replaces only those compressed entries and adjusts subsequent offset
 
 Some desired behavior is not yet implemented:
 
-- Custom in-game portraits.
+- Custom full-body character models.
 - True per-character depression immunity.
 - Grandma demotivating other characters through a custom morale aura.
 - New radio/intel trading mechanic.
@@ -45,8 +45,8 @@ The lower-right in-game character cards use the base character atlas:
 Current patched tiles:
 
 - `Ромакович`: tile `(3, 0)`.
-- `Катя`: tile `(0, 1)`.
+- `Катя`: tile `(0, 1)`, used by `Dweller_Cook`.
 - `Настя`: tile `(2, 1)`.
-- `Бабуля`: tile `(1, 2)`.
+- `Бабуля`: tile `(1, 2)`, used by `Dweller_Trader`.
 
-`Dweller_Cook` was also patched from portrait tile `(2, 0)` to `(1, 2)` so Бабуля does not share another stock portrait slot.
+`Dweller_Cook` is patched to portrait tile `(0, 1)`, and `Dweller_Trader` is patched to `(1, 2)` so Катя is the cook and Бабуля is the trader.
