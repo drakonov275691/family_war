@@ -50,3 +50,15 @@ Current patched tiles:
 - `Бабуля`: tile `(1, 2)`, used by `Dweller_Trader`.
 
 `Dweller_Cook` is patched to portrait tile `(0, 1)`, and `Dweller_Trader` is patched to `(1, 2)` so Катя is the cook and Бабуля is the trader.
+
+## Full-Body Models
+
+Directly replacing `GFX/CHARACTERS/RDY2/...` model references in the dweller templates was tested and rolled back because the game exited during startup.
+
+The attempted set was:
+
+- `Dweller_Cook`: `bruno` -> `kucharka`.
+- `Dweller_Crafter`: `marin` -> `zlodziejka`.
+- `Dweller_Trader`: `katia` -> `ciocia_nauczycielka`.
+
+Changing `Male_Protector` to `Female_Protector` for the converted templates did not fix the startup exit. The current stable build keeps the stock full-body models and only changes portrait cards, names, roles, and stats.

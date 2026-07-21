@@ -90,6 +90,34 @@ def set_int(data: bytearray, offset: int, value: int) -> None:
     data[offset : offset + 4] = struct.pack("<I", value)
 
 
+def patch_base_model(data: bytearray, old: str, new: str) -> None:
+    old_bytes = f"GFX/CHARACTERS/RDY2/{old}".encode("utf-8")
+    new_bytes = f"GFX/CHARACTERS/RDY2/{new}".encode("utf-8")
+    occurrences = data.count(old_bytes)
+    if occurrences == 0:
+        if data.count(new_bytes):
+            print("base model already", new)
+            return
+        print("base model", old, "missing, skipped")
+        return
+    data[:] = data.replace(old_bytes, new_bytes)
+    print("base model", old, "->", new, "x", occurrences)
+
+
+def patch_protector_gender(data: bytearray, female: bool) -> None:
+    wanted = b"Female_Protector" if female else b"Male_Protector"
+    other = b"Male_Protector" if female else b"Female_Protector"
+    occurrences = data.count(other)
+    if occurrences == 0:
+        if data.count(wanted):
+            print("protector gender already", wanted.decode("utf-8"))
+            return
+        print("protector gender marker missing, skipped")
+        return
+    data[:] = data.replace(other, wanted)
+    print("protector gender", other.decode("utf-8"), "->", wanted.decode("utf-8"), "x", occurrences)
+
+
 def patch_backpack(data: bytearray, old_values: list[int], new: int) -> None:
     for old in old_values:
         pattern = b"\x01" + struct.pack("<I", old) + b"\x00\x00\x00\x3f"
@@ -223,24 +251,22 @@ def main() -> None:
     for label, entry in entries.items():
         old_payload = unpack_entry(dat, entry)
         new_payload = patch_payload(label, old_payload)
-        if len(new_payload) != len(old_payload):
-            raise RuntimeError(f"{label}: payload length changed")
+        inflated = len(new_payload)
         compressed = gzip.compress(new_payload, compresslevel=9, mtime=0)
         old_size = entry["size"]
-        inflated = entry["inflated"]
         offset = entry["offset"]
         if not entry["compressed"]:
             compressed = new_payload
-        replacements.append((label, entry, compressed))
+        replacements.append((label, entry, compressed, inflated))
 
-    for label, entry, compressed in sorted(replacements, key=lambda item: item[1]["offset"], reverse=True):
+    for label, entry, compressed, inflated in sorted(replacements, key=lambda item: item[1]["offset"], reverse=True):
         old_size = entry["size"]
         new_size = len(compressed)
         offset = entry["offset"]
         delta = new_size - old_size
         dat[offset : offset + old_size] = compressed
         struct.pack_into("<I", idx, entry["idx_pos"] + 4, new_size)
-        struct.pack_into("<I", idx, entry["idx_pos"] + 8, entry["inflated"])
+        struct.pack_into("<I", idx, entry["idx_pos"] + 8, inflated)
         for other in all_entries:
             if other["offset"] > offset:
                 other["offset"] += delta
