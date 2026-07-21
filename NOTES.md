@@ -8,8 +8,18 @@ The working path is therefore targeted patching of compressed entries inside bas
 
 - `templates.dat` / `templates.idx` for stock character templates.
 - `textures-s3.dat` / `textures-s3.idx` for scenario and character portrait atlases.
+- `localizations.dat` / `localizations.idx` for the base Russian UI strings used by the scenario selection screen.
 
 The patchers replace only selected compressed entries and adjust subsequent offsets in the matching `.idx`.
+
+The scenario selection screen did not consistently use the mod-localized `russian.lang` override for stock character names, so `twom_patch_base_russian_lang.py` also patches these base-game keys:
+
+- `Names/Roman` -> `Ромакович`
+- `Names/Emilia` -> `Катя`
+- `Names/Arica` -> `Настя`
+- `Names/Katia` -> `Бабуля`
+- `CharacterSkills/Lawyer` -> `Хороший повар`
+- `CharacterSkills/Thief` -> `Инженер-стелсер`
 
 ## Current Scenario
 

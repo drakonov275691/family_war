@@ -40,6 +40,7 @@ Apply the current female-template model experiment:
 python .\twom_try_female_template_models.py
 python .\twom_patch_character03dirty_portraits.py
 python .\twom_patch_russian_lang_structured.py
+python .\twom_patch_base_russian_lang.py
 ```
 
 Pack a mod common container:
