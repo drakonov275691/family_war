@@ -44,9 +44,9 @@ The lower-right in-game character cards use the base character atlas:
 
 Current patched tiles:
 
-- `Ромакович`: tile `(2, 0)`.
+- `Ромакович`: tile `(3, 0)`.
 - `Катя`: tile `(0, 1)`.
 - `Настя`: tile `(2, 1)`.
 - `Бабуля`: tile `(1, 2)`.
 
-`Dweller_Cook` was also patched from portrait tile `(2, 0)` to `(1, 2)` so Бабуля does not share Ромакович's portrait slot.
+`Dweller_Cook` was also patched from portrait tile `(2, 0)` to `(1, 2)` so Бабуля does not share another stock portrait slot.
