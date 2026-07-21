@@ -8,15 +8,17 @@ This repository intentionally does **not** include game archives, extracted game
 
 - Keeps the working `MyFamilyMod` scenario enabled.
 - Patches Russian localization names:
-  - `Roman` -> `Госик`
+  - `Roman` -> `Ромакович`
   - `Katia` -> `Катя`
   - `Marin / Мэйрин` -> `Настя`
-  - `Bruno` -> `Бабка`
+  - `Bruno` -> `Бабуля`
 - Patches base `templates.dat` in place for the four stock templates used by the scenario:
   - `Dweller_Warrior`: 40-slot backpack, high HP, strong combat.
   - `Dweller_Trader`: stronger trader value.
   - `Dweller_Crafter`: 14-slot backpack, stronger crafting discount.
   - `Dweller_Cook`: 8-slot backpack, stronger food/medicine crafting discounts.
+
+See [CHARACTER_STATS.md](CHARACTER_STATS.md) for the current character setup.
 
 ## Important
 
