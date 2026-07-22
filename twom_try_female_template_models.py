@@ -1,5 +1,6 @@
 from pathlib import Path
 import gzip
+import re
 import shutil
 import struct
 import subprocess
@@ -7,28 +8,35 @@ import time
 import zlib
 
 from twom_pack_common import murmur_hash
-
-
-GAME = Path(r"D:\Games\This War of Mine")
-MOD_SOURCE = Path(
-    r"C:\Users\user\Documents\This War of Mine\Mods\MyFamilyMod"
-    r"\30be2babe4ac457c836a07462a83a65e"
+from twom_family_config import (
+    character_by_id,
+    documents_mod_source,
+    documents_mods_dir,
+    game_mod_dir,
+    game_mod_source,
+    game_path,
+    load_config,
+    mod_id,
+    scenario_name,
+    scenario_templates,
+    target_templates,
 )
-MOD_ID = "30be2babe4ac457c836a07462a83a65e"
-DOC_MODS = Path(r"C:\Users\user\Documents\This War of Mine\Mods")
-GAME_MOD_DIR = GAME / "Mods" / "MyFamilyMod"
-GAME_MOD_SOURCE = GAME_MOD_DIR / MOD_ID
+
+
+CONFIG = load_config()
+GAME = game_path(CONFIG)
+MOD_SOURCE = documents_mod_source(CONFIG)
+MOD_ID = mod_id(CONFIG)
+DOC_MODS = documents_mods_dir()
+GAME_MOD_DIR = game_mod_dir(CONFIG)
+GAME_MOD_SOURCE = game_mod_source(CONFIG)
 OUT_ROOT = Path(r"C:\Users\user\Downloads\thiswarofmine\packroot_myfamily_female_templates")
 
 TEMPLATES_DAT = GAME / "templates.dat"
 TEMPLATES_IDX = GAME / "templates.idx"
 
-TARGETS = {
-    "characters/player_characters/dweller_warrior.binarytemplate": "warrior",
-    "characters/player_characters/dweller_trader.binarytemplate": "trader",
-    "characters/player_characters/dweller_lawyer.binarytemplate": "lawyer",
-    "characters/player_characters/dweller_female_thief.binarytemplate": "thief",
-}
+TARGETS = target_templates(CONFIG)
+CHARACTERS = character_by_id(CONFIG)
 
 
 def read_all_entries() -> list[dict[str, int]]:
@@ -113,8 +121,7 @@ def patch_backpack(data: bytearray, old_values: list[int], new: int) -> None:
     print("backpack", old, "->", new)
 
 
-def patch_portrait_tile(data: bytearray, values: tuple[float, float, float, float]) -> None:
-    marker = b"UI/Characters/Characters_02_Closed.dds\x00"
+def patch_portrait_tile(data: bytearray, marker: bytes, values: tuple[float, float, float, float]) -> None:
     pos = data.find(marker)
     if pos < 0:
         print("portrait marker missing")
@@ -152,23 +159,54 @@ def patch_trading(data: bytearray, value: float) -> None:
 
 def patch_payload(label: str, payload: bytes) -> bytes:
     data = bytearray(payload)
+    char = CHARACTERS[label]
+    stats = char.get("stats", {})
     print("\npatch", label)
-    if label == "warrior":
-        patch_backpack(data, [10, 40], 40)
-        patch_hp(data, 180.0)
-        patch_combat(data, 1.0, 0.9)
-        patch_portrait_tile(data, (3.0, 0.0, 4.0, 4.0))
-    elif label == "lawyer":
-        patch_backpack(data, [10, 12], 12)
-        patch_portrait_tile(data, (0.0, 1.0, 4.0, 4.0))
-    elif label == "thief":
-        patch_backpack(data, [10, 14], 14)
-        patch_portrait_tile(data, (2.0, 1.0, 4.0, 4.0))
-    elif label == "trader":
-        patch_backpack(data, [12, 8], 8)
-        patch_trading(data, 0.5)
-        patch_portrait_tile(data, (1.0, 2.0, 4.0, 4.0))
+
+    if "backpack" in stats:
+        new_backpack = int(stats["backpack"])
+        old_values = [new_backpack] + list(stats.get("backpack_search_values", []))
+        patch_backpack(data, list(dict.fromkeys(old_values)), new_backpack)
+    if "hp" in stats:
+        patch_hp(data, float(stats["hp"]))
+    if "combat_hit" in stats or "combat_close_hit" in stats:
+        patch_combat(
+            data,
+            float(stats.get("combat_hit", 1.0)),
+            float(stats.get("combat_close_hit", stats.get("combat_hit", 1.0))),
+        )
+    if "trading_value" in stats:
+        patch_trading(data, float(stats["trading_value"]))
+
+    markers = {
+        "Characters_02": b"UI/Characters/Characters_02_Closed.dds\x00",
+        "Characters_03Dirty": b"UI/Characters/Characters_03Dirty_close.dds\x00",
+    }
+    atlas = char.get("portrait_atlas")
+    if atlas in markers:
+        tile_x, tile_y = char["atlas_tile"]
+        patch_portrait_tile(data, markers[atlas], (float(tile_x), float(tile_y), 4.0, 4.0))
     return bytes(data)
+
+
+def update_scenario_xml(path: Path) -> None:
+    text = path.read_text(encoding="utf-8")
+    entries = "\n".join(
+        f'                        <Entry Value="{template}" />'
+        for template in scenario_templates(CONFIG)
+    )
+    pattern = (
+        r'(<Properties ClassName="KosovoInitialDwellerSet">\s*'
+        rf'<Prop Name="Name" Value="{re.escape(scenario_name(CONFIG))}" />.*?'
+        r'<Prop Name="DwellerTemplates">\s*)'
+        r'.*?'
+        r'(\s*</Prop>)'
+    )
+    updated, count = re.subn(pattern, rf"\1{entries}\2", text, count=1, flags=re.S)
+    if count != 1:
+        raise RuntimeError(f"Could not update {scenario_name(CONFIG)} DwellerTemplates in {path}")
+    path.write_text(updated, encoding="utf-8")
+    print("scenario templates ->", ", ".join(scenario_templates(CONFIG)))
 
 
 def patch_templates_dat() -> dict[str, bytes]:
@@ -219,6 +257,7 @@ def patch_templates_dat() -> dict[str, bytes]:
 
 
 def run_modtools_common() -> None:
+    update_scenario_xml(MOD_SOURCE / "ScenariosConfig.xml")
     shutil.copy2(MOD_SOURCE / "ScenariosConfig.xml", GAME_MOD_SOURCE / "ScenariosConfig.xml")
     stamp = time.strftime("%Y%m%d_%H%M%S")
     out_name = f"{MOD_ID}_female_models_{stamp}"
@@ -243,10 +282,8 @@ def pack_active_common(payloads: dict[str, bytes]) -> None:
     target = OUT_ROOT / "characters" / "player_characters"
     target.mkdir(parents=True)
     mapping = {
-        "warrior": "dweller_warrior.binarytemplate",
-        "lawyer": "dweller_lawyer.binarytemplate",
-        "thief": "dweller_female_thief.binarytemplate",
-        "trader": "dweller_trader.binarytemplate",
+        char["id"]: Path(char["template_path"]).name
+        for char in CHARACTERS.values()
     }
     for label, filename in mapping.items():
         (target / filename).write_bytes(payloads[label])

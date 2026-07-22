@@ -1,0 +1,87 @@
+{
+  "notes": [
+    "After editing this file, run: python .\\twom_apply_family_config.py",
+    "template_path controls the safe stock dweller template/model. Raw RDU/RDY2 model swaps are not applied because direct model-string swaps caused startup crashes.",
+    "atlas_tile is [x, y]. Characters_02 portraits are patched through template tile data; Characters_03Dirty portraits are patched into the texture atlas."
+  ],
+  "game_path": "D:/Games/This War of Mine",
+  "mod_id": "30be2babe4ac457c836a07462a83a65e",
+  "mod_folder_name": "MyFamilyMod",
+  "scenario_name": "MyFamily",
+  "characters": [
+    {
+      "id": "romakovich",
+      "display_name": "Ромакович",
+      "base_name_key": "Names/Roman",
+      "skill_key": null,
+      "skill_text": null,
+      "template_path": "characters/player_characters/dweller_warrior.binarytemplate",
+      "scenario_template": "Characters/Player_characters/Dweller_Warrior",
+      "model_note": "stock warrior/dezerter male body",
+      "portrait_image": "C:/Users/user/Downloads/gos.jpg",
+      "portrait_atlas": "Characters_02",
+      "atlas_tile": [3, 0],
+      "stats": {
+        "backpack": 40,
+        "backpack_search_values": [10, 40],
+        "hp": 180.0,
+        "combat_hit": 1.0,
+        "combat_close_hit": 0.9
+      }
+    },
+    {
+      "id": "katya",
+      "display_name": "Катя",
+      "base_name_key": "Names/Emilia",
+      "skill_key": "CharacterSkills/Lawyer",
+      "skill_text": "Хороший повар",
+      "template_path": "characters/player_characters/dweller_lawyer.binarytemplate",
+      "scenario_template": "Characters/Player_characters/Dweller_Lawyer",
+      "model_note": "stock female kucharka model through Dweller_Lawyer",
+      "portrait_image": "C:/Users/user/Downloads/catya.jpg",
+      "portrait_atlas": "Characters_03Dirty",
+      "atlas_tile": [1, 0],
+      "stats": {
+        "backpack": 12,
+        "backpack_search_values": [10, 12]
+      },
+      "known_limit": "Uses female lawyer template for the body; Bruno cooking component is not attached yet."
+    },
+    {
+      "id": "nastya",
+      "display_name": "Настя",
+      "base_name_key": "Names/Arica",
+      "skill_key": "CharacterSkills/Thief",
+      "skill_text": "Инженер-стелсер",
+      "template_path": "characters/player_characters/dweller_female_thief.binarytemplate",
+      "scenario_template": "Characters/Player_characters/Dweller_Female_Thief",
+      "model_note": "stock female zlodziejka model through Dweller_Female_Thief",
+      "portrait_image": "C:/Users/user/Downloads/nasty.jpg",
+      "portrait_atlas": "Characters_03Dirty",
+      "atlas_tile": [0, 1],
+      "stats": {
+        "backpack": 14,
+        "backpack_search_values": [10, 14]
+      },
+      "known_limit": "Uses stock stealth template; Marin crafting discount is not attached yet."
+    },
+    {
+      "id": "babula",
+      "display_name": "Бабуля",
+      "base_name_key": "Names/Katia",
+      "skill_key": "CharacterSkills/Trader",
+      "skill_text": "Хорошо торгуется",
+      "template_path": "characters/player_characters/dweller_trader.binarytemplate",
+      "scenario_template": "Characters/Player_characters/Dweller_Trader",
+      "model_note": "stock Katia female body",
+      "portrait_image": "C:/Users/user/Downloads/ba.jpg",
+      "portrait_atlas": "Characters_02",
+      "atlas_tile": [1, 2],
+      "stats": {
+        "backpack": 8,
+        "backpack_search_values": [12, 8],
+        "trading_value": 0.5
+      }
+    }
+  ]
+}

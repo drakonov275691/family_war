@@ -32,6 +32,26 @@ The active `MyFamily` scenario now starts with:
 
 This is the safer full-body model path. Direct model-string swaps in old templates caused startup exits, while whole stock female templates launched successfully on 2026-07-22.
 
+## JSON Config
+
+`characters.json` is now the editable source of truth for the family setup. It can control:
+
+- Display names.
+- Base localization keys.
+- Skill labels.
+- Stock dweller template used by the scenario.
+- Backpack, HP, combat, and trading values currently supported by the patcher.
+- Portrait image paths.
+- Portrait atlas and tile.
+
+After editing it, run:
+
+```powershell
+python .\twom_apply_family_config.py
+```
+
+This still repatches/re-packs the game archives. `characters.json` is for humans and scripts; This War of Mine itself loads `.dat` / `.idx` archives.
+
 ## Scenario Select Image
 
 The scenario select card uses `UI/select/PhotoWindow_White.dds`.

@@ -1,15 +1,14 @@
 from pathlib import Path
 
+from twom_family_config import game_mod_source, load_config, localization_values, documents_mod_source
+
+
+CONFIG = load_config()
+
 
 TARGETS = [
-    Path(
-    r"C:\Users\user\Documents\This War of Mine\Mods\MyFamilyMod"
-    r"\30be2babe4ac457c836a07462a83a65e\localizations\russian.lang"
-    ),
-    Path(
-        r"D:\Games\This War of Mine\Mods\MyFamilyMod"
-        r"\30be2babe4ac457c836a07462a83a65e\localizations\russian.lang"
-    ),
+    documents_mod_source(CONFIG) / "localizations" / "russian.lang",
+    game_mod_source(CONFIG) / "localizations" / "russian.lang",
 ]
 
 PATCHES = {
@@ -19,14 +18,7 @@ PATCHES = {
     "\u041c\u044d\u0439\u0440\u0438\u043d": "\u041d\u0430\u0441\u0442\u044f",
 }
 
-KEY_VALUES = {
-    "Names/Bruno": "\u041a\u0430\u0442\u044f",
-    "Names/Katia": "\u0411\u0430\u0431\u0443\u043b\u044f",
-    "Names/Emilia": "\u041a\u0430\u0442\u044f",
-    "Names/Arica": "\u041d\u0430\u0441\u0442\u044f",
-    "CharacterSkills/Lawyer": "\u0425\u043e\u0440\u043e\u0448\u0438\u0439 \u043f\u043e\u0432\u0430\u0440",
-    "CharacterSkills/Thief": "\u0418\u043d\u0436\u0435\u043d\u0435\u0440-\u0441\u0442\u0435\u043b\u0441\u0435\u0440",
-}
+KEY_VALUES = localization_values(CONFIG)
 
 KEY_REPLACEMENTS = {
     "CharacterBios/Cook/Bio": {

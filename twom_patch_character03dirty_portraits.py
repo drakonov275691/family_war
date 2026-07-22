@@ -8,23 +8,34 @@ from PIL import Image, ImageOps
 
 from twom_pack_common import murmur_hash
 from twom_make_myfamily_select_texture import encode_dxt5
+from twom_family_config import characters, game_path, load_config
 
 
-GAME = Path(r"D:\Games\This War of Mine")
+CONFIG = load_config()
+GAME = game_path(CONFIG)
 DAT = GAME / "textures-s3.dat"
 IDX = GAME / "textures-s3.idx"
-ROOT = Path(r"C:\Users\user\Downloads")
 
-TARGETS = {
-    "ui/characters/characters_03dirty_close.texture": "close",
-    "ui/characters/characters_03dirty_open.texture": "open",
+ATLAS_TARGETS = {
+    "Characters_02": [
+        "ui/characters/characters_02.texture",
+        "ui/characters/characters_02_closed.texture",
+        "ui/characters/characters_02_blinked.texture",
+    ],
+    "Characters_03Dirty": [
+        "ui/characters/characters_03dirty_close.texture",
+        "ui/characters/characters_03dirty_open.texture",
+    ],
 }
 
-PORTRAITS = [
-    # x tile, y tile, source image
-    (1, 0, ROOT / "catya.jpg"),
-    (0, 1, ROOT / "nasty.jpg"),
-]
+PORTRAITS_BY_ATLAS = {
+    atlas: [
+        (char["atlas_tile"][0], char["atlas_tile"][1], Path(char["portrait_image"]))
+        for char in characters(CONFIG)
+        if char.get("portrait_atlas") == atlas
+    ]
+    for atlas in ATLAS_TARGETS
+}
 
 HEADER_SIZE = 144
 ATLAS_SIZE = 2048
@@ -102,22 +113,29 @@ def patch_tile(texture: bytearray, tile_x: int, tile_y: int, source: Path) -> No
     print(source.name, "-> tile", (tile_x, tile_y))
 
 
-def patch_texture(payload: bytes) -> bytes:
+def patch_texture(payload: bytes, portraits: list[tuple[int, int, Path]]) -> bytes:
     texture = bytearray(payload)
     expected = HEADER_SIZE + (ATLAS_SIZE * ATLAS_SIZE // 16) * DXT5_BLOCK_BYTES
     if len(texture) != expected:
         raise RuntimeError(f"Unexpected texture size: {len(texture)} != {expected}")
-    for tile_x, tile_y, source in PORTRAITS:
+    for tile_x, tile_y, source in portraits:
         patch_tile(texture, tile_x, tile_y, source)
     return bytes(texture)
 
 
 def main() -> None:
     all_entries = read_all_entries()
-    wanted = {murmur_hash(name.encode("utf-8")): name for name in TARGETS}
-    entries = [entry for entry in all_entries if entry["hash"] in wanted]
-    if len(entries) != len(TARGETS):
-        raise RuntimeError(f"Found {len(entries)} texture entries, expected {len(TARGETS)}")
+    wanted = {}
+    for atlas, targets in ATLAS_TARGETS.items():
+        if PORTRAITS_BY_ATLAS[atlas]:
+            for name in targets:
+                wanted[murmur_hash(name.encode("utf-8"))] = (name, atlas)
+    entries = []
+    for entry in all_entries:
+        if entry["hash"] in wanted:
+            entries.append(entry)
+    if len(entries) != len(wanted):
+        raise RuntimeError(f"Found {len(entries)} texture entries, expected {len(wanted)}")
 
     stamp = "before-female-template-portraits"
     backup_dat = DAT.with_suffix(f".dat.bak-codex-{stamp}")
@@ -132,8 +150,10 @@ def main() -> None:
     idx = bytearray(IDX.read_bytes())
     replacements = []
     for entry in entries:
+        name, atlas = wanted[entry["hash"]]
+        print("\npatch", name)
         payload = unpack_entry(dat, entry)
-        patched = patch_texture(payload)
+        patched = patch_texture(payload, PORTRAITS_BY_ATLAS[atlas])
         compressed = gzip.compress(patched, compresslevel=9, mtime=0)
         replacements.append((entry, compressed, len(patched)))
 

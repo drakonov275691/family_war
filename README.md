@@ -34,14 +34,19 @@ C:\Users\user\Documents\This War of Mine\Mods\MyFamilyMod
 
 ## Useful Commands
 
-Apply the current female-template model experiment:
+Edit the family config:
+
+```text
+characters.json
+```
+
+Then apply it to the local game files:
 
 ```powershell
-python .\twom_try_female_template_models.py
-python .\twom_patch_character03dirty_portraits.py
-python .\twom_patch_russian_lang_structured.py
-python .\twom_patch_base_russian_lang.py
+python .\twom_apply_family_config.py
 ```
+
+Close the game before running the command. The game does not read `characters.json` directly; the script patches/re-packs the `.dat` / `.idx` archives that the game actually loads.
 
 Pack a mod common container:
 

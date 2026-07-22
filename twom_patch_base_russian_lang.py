@@ -6,21 +6,15 @@ import zlib
 
 from twom_pack_common import murmur_hash
 from twom_patch_russian_lang_structured import build_lang, parse_records
+from twom_family_config import game_path, load_config, localization_values
 
 
-GAME = Path(r"D:\Games\This War of Mine")
+CONFIG = load_config()
+GAME = game_path(CONFIG)
 DAT = GAME / "localizations.dat"
 IDX = GAME / "localizations.idx"
 TARGET = "russian.lang"
-
-KEY_VALUES = {
-    "Names/Roman": "Ромакович",
-    "Names/Emilia": "Катя",
-    "Names/Arica": "Настя",
-    "Names/Katia": "Бабуля",
-    "CharacterSkills/Lawyer": "Хороший повар",
-    "CharacterSkills/Thief": "Инженер-стелсер",
-}
+KEY_VALUES = localization_values(CONFIG)
 
 
 def read_entries() -> list[dict[str, int]]:
