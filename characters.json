@@ -8,6 +8,7 @@
   "mod_id": "30be2babe4ac457c836a07462a83a65e",
   "mod_folder_name": "MyFamilyMod",
   "scenario_name": "MyFamily",
+  "scenario_character_ids": ["romakovich", "katya", "babula"],
   "characters": [
     {
       "id": "romakovich",

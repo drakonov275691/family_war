@@ -27,7 +27,6 @@ The active `MyFamily` scenario now starts with:
 
 - `Dweller_Warrior` for Ромакович.
 - `Dweller_Lawyer` for Катя.
-- `Dweller_Female_Thief` for Настя.
 - `Dweller_Trader` for Бабуля.
 
 This is the safer full-body model path. Direct model-string swaps in old templates caused startup exits, while whole stock female templates launched successfully on 2026-07-22.
@@ -36,6 +35,7 @@ This is the safer full-body model path. Direct model-string swaps in old templat
 
 `characters.json` is now the editable source of truth for the family setup. It can control:
 
+- Which configured characters start in the scenario via `scenario_character_ids`.
 - Display names.
 - Base localization keys.
 - Skill labels.

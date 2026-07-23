@@ -12,7 +12,8 @@ This repository intentionally does **not** include game archives, extracted game
   - `Katia` -> `Бабуля`
   - `Emilia` -> `Катя`
   - `Arica` -> `Настя`
-- Uses a safer full-body model experiment: the scenario starts with `Dweller_Warrior`, `Dweller_Lawyer`, `Dweller_Female_Thief`, and `Dweller_Trader`.
+- Uses a safer full-body model experiment: the current scenario starts with `Dweller_Warrior`, `Dweller_Lawyer`, and `Dweller_Trader`.
+- `scenario_character_ids` in `characters.json` controls which configured characters actually start in the scenario.
 - Patches base `templates.dat` in place for the stock templates used by the scenario:
   - `Dweller_Warrior`: 40-slot backpack, high HP, strong combat.
   - `Dweller_Trader`: 8-slot backpack, stronger trader value.

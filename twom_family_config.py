@@ -55,6 +55,14 @@ def characters(config: dict[str, Any]) -> list[dict[str, Any]]:
     return list(config["characters"])
 
 
+def scenario_characters(config: dict[str, Any]) -> list[dict[str, Any]]:
+    ids = config.get("scenario_character_ids")
+    if not ids:
+        return characters(config)
+    by_id = character_by_id(config)
+    return [by_id[character_id] for character_id in ids]
+
+
 def target_templates(config: dict[str, Any]) -> dict[str, str]:
     return {char["template_path"].lower(): char["id"] for char in characters(config)}
 
@@ -83,4 +91,4 @@ def localization_values(config: dict[str, Any]) -> dict[str, str]:
 
 
 def scenario_templates(config: dict[str, Any]) -> list[str]:
-    return [char["scenario_template"] for char in characters(config)]
+    return [char["scenario_template"] for char in scenario_characters(config)]
